@@ -33,3 +33,10 @@ export const uploadOnCloudinary = (buffer) => {
     });
 };
 
+
+
+export const checkIfProductNameExists = async (table: any, name: string) => {
+    const exists = await table.findOne({ where: { name } });
+
+    return exists
+}

@@ -49,6 +49,7 @@ export class UsersService {
   async signin(createUserDto: CreateUserDto): Promise<{ user: { id: number, name: string, email: string }, token: string }> {
     const user = await this.userRepo.findOne({
       where: { email: createUserDto.email },
+      select: ['id', 'name', 'email', 'password']
     })
 
     console.log("user data check ->>>>>>>", user);
@@ -79,14 +80,12 @@ export class UsersService {
   }
 
   async findAll(): Promise<User[]> {
-    return this.userRepo.find({
-      select: ['id', 'name', 'email', 'createdAt'],
-    });
+    return this.userRepo.find();
   }
 
   async findOne(id: number): Promise<User | null> {
     const user = await this.userRepo.findOne(
-      { where: { id }, select: ['id', 'name', 'email', 'createdAt'] })
+      { where: { id }})
 
     if (!user) {
       throw new NotFoundException('User not found');
@@ -117,6 +116,6 @@ export class UsersService {
     }
 
     await this.userRepo.update(id, data);
-    return this.userRepo.findOne({ where: { id }, select: ['id', 'name', 'email', 'image', 'createdAt'] });
+    return this.userRepo.findOne({ where: { id }});
   }
 }
