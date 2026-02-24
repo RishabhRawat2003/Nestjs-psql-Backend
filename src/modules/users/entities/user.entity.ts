@@ -1,6 +1,7 @@
 // src/users/user.entity.ts
 
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn } from 'typeorm';
+import { Order } from 'src/modules/orders/entities/order.entity';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany } from 'typeorm';
 
 @Entity()
 export class User {
@@ -18,6 +19,9 @@ export class User {
 
     @Column({ type: 'varchar', nullable: true, default: null })
     image?: string | null;
+
+    @OneToMany(() => Order, (order) => order.user)
+    orders!: Order[];
 
     @CreateDateColumn()
     createdAt!: Date;

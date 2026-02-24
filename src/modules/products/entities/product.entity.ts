@@ -21,7 +21,7 @@ export class Product {
     videos!: string[];
 
     @Column({ default: 0 })
-    quantity!: number
+    quantity!: number // it is stock
 
     @Column('text', { array: true })
     features!: string[]
