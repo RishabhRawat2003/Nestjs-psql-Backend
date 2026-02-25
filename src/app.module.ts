@@ -5,6 +5,7 @@ import { UsersModule } from './modules/users/users.module';
 import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { RedisModule } from './redis/redis.module';
+import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 
 
 @Module({
@@ -15,6 +16,7 @@ import { RedisModule } from './redis/redis.module';
     ProductsModule, // ❗ products
     OrdersModule, // ❗ orders
     RedisModule, // ❗ redis
+    RabbitMQModule, // ❗ rabbitmq
   ],
 })
 export class AppModule { }

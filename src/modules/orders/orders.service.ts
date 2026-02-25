@@ -5,7 +5,7 @@ import { Repository } from "typeorm";
 import { OrderDto } from "./dto/order.dto";
 import { Product } from "../products/entities/product.entity";
 import { OrderStatus } from "src/common/utils/enum";
-import { ChatGateway } from "src/socket/socket.gateway";
+import { ProducerService } from "src/rabbitmq/producer.service";
 
 @Injectable()
 export class OrdersService {
@@ -16,7 +16,8 @@ export class OrdersService {
         @InjectRepository(Product)
         private readonly productRepo: Repository<Product>,
 
-        private readonly socket: ChatGateway,
+        private readonly rabbitmq: ProducerService,
+
     ) { }
 
     async createOrder(data: OrderDto): Promise<Order> {
@@ -69,8 +70,12 @@ export class OrdersService {
 
         let allProductIds = await order?.items.map((item: any) => item.product.id);
 
-        this.socket.emitUpdation(allProductIds, 'products');
+        let dataToEmit: { ids: string[], tableName: string } = {
+            ids: allProductIds,
+            tableName: 'products'
+        }
 
+        this.rabbitmq.publishToQueue("task_queue", dataToEmit)
 
         return this.orderRepo.update(id, data);
     }
