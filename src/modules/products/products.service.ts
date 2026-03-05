@@ -48,7 +48,7 @@ export class ProductsService {
             images,
             videos,
             specifications: JSON.parse(data.specifications),
-            additionalInfo: JSON.parse(data.additionalInfo),
+            additionalInfo: data.additionalInfo ? JSON.parse(data.additionalInfo) : null,
             features: JSON.parse(data.features)
         }
 
@@ -131,7 +131,8 @@ export class ProductsService {
 
 
     // add here later before deleting product check if its id is used in another table
-    async deleteProduct(id: number): Promise<void> {1
+    async deleteProduct(id: number): Promise<void> {
+        1
         const product = await this.productRepo.findOne({ where: { id } });
 
         if (!product) {

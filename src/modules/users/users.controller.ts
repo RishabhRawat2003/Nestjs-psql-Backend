@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, ParseIntPipe } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { ApiTags, ApiOperation, ApiParam, ApiConsumes } from '@nestjs/swagger';
@@ -31,22 +31,22 @@ export class UsersController {
   @Get('get-single/:id')
   @ApiParam({ name: 'id', type: 'number' })
   @ApiOperation({ summary: 'Get user by id' })
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.findOne(id);
   }
 
   @Delete('delete/:id')
   @ApiParam({ name: 'id', type: 'number' })
   @ApiOperation({ summary: 'Delete user by id' })
-  remove(@Param('id') id: string) {
-    return this.usersService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.usersService.remove(id);
   }
 
   @Post('update/:id')
   @ApiOperation({ summary: 'Update user by id' })
-  @ApiConsumes('multipart/form-data') 
+  @ApiConsumes('multipart/form-data')
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  update(@Param('id') id: string, @Body() updateUserDto: CreateUserDto, @UploadedFile() file: Express.Multer.File) {
-    return this.usersService.update(+id, updateUserDto, file);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateUserDto: CreateUserDto, @UploadedFile() file: Express.Multer.File) {
+    return this.usersService.update(id, updateUserDto, file);
   }
 }

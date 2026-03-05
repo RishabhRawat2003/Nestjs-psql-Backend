@@ -4,6 +4,7 @@ import { OrderItemDto } from "./orderItem.dto";
 import { Type } from "class-transformer";
 import { OrderStatus, PaymentMethod } from "src/common/utils/enum";
 import { ShippingAddressDto } from "./shippingAddress.dto";
+import { User } from "src/modules/users/entities/user.entity";
 
 
 export class OrderDto {
@@ -14,7 +15,7 @@ export class OrderDto {
 
     @ApiProperty({ example: '1', description: 'User ID' })
     @IsInt()
-    userId?: number
+    user?: User
 
     @ApiProperty({ type: [OrderItemDto] })
     @IsArray()

@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, Param, Post, UploadedFiles, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, UploadedFiles, UseInterceptors } from "@nestjs/common";
 import { ApiConsumes, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { ProductsService } from "./products.service";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { multerOptions } from "src/common/middlewares/multer";
 import { AddProductDto } from "./dto/add-product.dto";
+import { UpdateProductDto } from "./dto/update-product.dto";
 
 
 
@@ -29,14 +30,14 @@ export class ProductsController {
     @Get('get-product/:id')
     @ApiParam({ name: 'id', type: 'number' })
     @ApiOperation({ summary: 'Get single product' })
-    getSingle(@Param('id') id: number) {
+    getSingle(@Param('id', ParseIntPipe) id: number) {
         return this.productsService.getSingleProduct(id);
     }
 
     @Delete('remove-product/:id')
     @ApiParam({ name: 'id', type: 'number' })
     @ApiOperation({ summary: 'Remove product' })
-    remove(@Param('id') id: number) {
+    remove(@Param('id', ParseIntPipe) id: number) {
         return this.productsService.deleteProduct(id);
     }
 
@@ -44,7 +45,7 @@ export class ProductsController {
     @ApiOperation({ summary: 'Update product' })
     @ApiConsumes('multipart/form-data')
     @UseInterceptors(FileFieldsInterceptor([{ name: 'images', maxCount: 10 }, { name: 'videos', maxCount: 5 }], multerOptions))
-    update(@Param('id') id: number, @Body() data: AddProductDto, @UploadedFiles() files?: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }) {
+    update(@Param('id', ParseIntPipe) id: number, @Body() data: UpdateProductDto, @UploadedFiles() files?: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }) {
         return this.productsService.updateProduct(id, data, files);
     }
 }

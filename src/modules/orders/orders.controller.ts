@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post } from "@nestjs/common";
 import { ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { OrdersService } from "./orders.service";
 import { OrderDto } from "./dto/order.dto";
@@ -24,7 +24,7 @@ export class OrdersController {
     @Get("get-single-order/:id")
     @ApiOperation({ summary: "get single order" })
     @ApiParam({ name: "id", type: "number" })
-    async getSingleOrder(@Param("id") id: number) {
+    async getSingleOrder(@Param("id", ParseIntPipe) id: number) {
         return this.ordersService.getSingleOrder(id);
     }
 
@@ -32,14 +32,14 @@ export class OrdersController {
     @Delete("remove-order/:id")
     @ApiOperation({ summary: "remove order" })
     @ApiParam({ name: "id", type: "number" })
-    async removeOrder(@Param("id") id: number) {
+    async removeOrder(@Param("id", ParseIntPipe) id: number) {
         return this.ordersService.deleteOrder(id);
     }
 
     @Post("update-order/:id")
     @ApiOperation({ summary: "update order" })
     @ApiParam({ name: "id", type: "number" })
-    async updateOrder(@Param("id") id: number,@Body() data: OrderDto) {
+    async updateOrder(@Param("id", ParseIntPipe) id: number, @Body() data: OrderDto) {
         return this.ordersService.updateOrder(id, data);
     }
 }

@@ -1,79 +1,55 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Type } from "class-transformer";
 import {
-  IsArray,
   IsNotEmpty,
   IsNumber,
-  IsObject,
-  IsOptional,
   IsString,
-  Min
+  Min,
+  IsOptional
 } from "class-validator";
 
 export class AddProductDto {
 
-  @ApiProperty({ example: 'iPhone 15 Pro', description: 'Name of the product' })
+  @ApiProperty({ example: 'iPhone 15 Pro' })
   @IsString()
   @IsNotEmpty()
   name!: string;
 
-  @ApiProperty({ example: 129999.99, description: 'Price of the product' })
+  @ApiProperty({ example: 129999.99 })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   price!: number;
 
-  @ApiProperty({ example: 'Latest Apple flagship smartphone', description: 'Product description' })
+  @ApiProperty({ example: 'Latest Apple flagship smartphone' })
   @IsString()
   @IsNotEmpty()
   description!: string;
 
-  @ApiProperty({
-    example: ['img1.jpg', 'img2.jpg'],
-    description: 'Product images',
-    type: [String],
-  })
-  @IsArray()
-  @IsString({ each: true })
-  images!: string[];
-
-  @ApiProperty({
-    example: ['video1.mp4'],
-    description: 'Product videos',
-    type: [String],
-  })
-  @IsArray()
-  @IsString({ each: true })
-  videos!: string[];
-
-  @ApiProperty({ example: 50, description: 'Available quantity' })
+  @ApiProperty({ example: 50 })
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   quantity!: number;
 
   @ApiProperty({
-    example: ['Fast charging', 'Water resistant', 'Face ID'],
-    description: 'Product features',
-    type: [String],
+    example: '["Fast charging","Water resistant"]',
+    description: 'Product features'
   })
+  @IsString()
   features!: string;
 
   @ApiProperty({
-    example: {
-      ram: '8GB',
-      storage: '256GB',
-      battery: '4500mAh',
-      camera: '48MP'
-    },
-    description: 'Product specifications',
+    example: '{"ram":"8GB","storage":"256GB"}',
+    description: 'Specifications'
   })
+  @IsString()
   specifications!: string;
 
   @ApiProperty({
-    example: {
-      warranty: '1 year',
-      brand: 'Apple',
-      country: 'USA'
-    },
-    description: 'Additional product info'
+    example: '{"brand":"Apple","warranty":"1 year"}'
   })
-  additionalInfo!: string;
+  @IsOptional()
+  @IsString()
+  additionalInfo?: string;
 }

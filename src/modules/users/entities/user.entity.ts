@@ -1,7 +1,8 @@
 // src/users/user.entity.ts
 
+import { Cart } from 'src/modules/carts/entities/cart.entity';
 import { Order } from 'src/modules/orders/entities/order.entity';
-import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, CreateDateColumn, OneToMany, OneToOne } from 'typeorm';
 
 @Entity()
 export class User {
@@ -22,6 +23,9 @@ export class User {
 
     @OneToMany(() => Order, (order) => order.user)
     orders!: Order[];
+
+    @OneToOne(() => Cart, cart => cart.user)
+    cart!: Cart;
 
     @CreateDateColumn()
     createdAt!: Date;

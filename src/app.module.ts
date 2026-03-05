@@ -6,6 +6,7 @@ import { ProductsModule } from './modules/products/products.module';
 import { OrdersModule } from './modules/orders/orders.module';
 import { RedisModule } from './redis/redis.module';
 import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
+import { CartModule } from './modules/carts/cart.module';
 
 
 @Module({
@@ -16,7 +17,8 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
     ProductsModule, // ❗ products
     OrdersModule, // ❗ orders
     RedisModule, // ❗ redis
-    RabbitMQModule, // ❗ rabbitmq
+    RabbitMQModule, // ❗ rabbitmq,
+    CartModule, // ❗ cart
   ],
 })
 export class AppModule { }
