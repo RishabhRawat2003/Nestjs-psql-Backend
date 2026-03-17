@@ -13,8 +13,8 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME,
   ssl: process.env.ENV !== "local" ? { rejectUnauthorized: false } : false,
 
-  entities: ["src/modules/**/*.entity.ts"],
-  migrations: ["src/database/migrations/*.ts"],
+  entities: process.env.ENV === 'local' ? ["src/modules/**/*.entity.ts"] : ["dist/modules/**/*.entity.js"],
+  migrations: process.env.ENV === 'local' ? ["src/database/migrations/*.ts"] : ["dist/database/migrations/*.js"],
 
   synchronize: process.env.ENV === 'local' ? true : false, // ❗ use false in production
 });
