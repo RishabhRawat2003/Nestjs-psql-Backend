@@ -7,7 +7,7 @@ export const databaseConfig: TypeOrmModuleOptions = {
   username: process.env.DB_USERNAME,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
-  ssl: { rejectUnauthorized: false },
+  ssl: process.env.ENV !== 'local' ? { rejectUnauthorized: false } : false,
   autoLoadEntities: true,
   synchronize: process.env.ENV === 'local' ? true : false, // ❗ use false in production
 };
