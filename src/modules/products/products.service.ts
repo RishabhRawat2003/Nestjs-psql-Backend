@@ -3,7 +3,7 @@ import { InjectRepository } from "@nestjs/typeorm";
 import { Product } from "./entities/product.entity";
 import { Repository } from "typeorm";
 import { AddProductDto } from "./dto/add-product.dto";
-import { checkIfProductNameExists, uploadOnCloudinary } from "src/common/utils/helper";
+import { checkIfProductNameExists, uploadOnCloudinary, uploadToS3 } from "src/common/utils/helper";
 import { UpdateProductDto } from "./dto/update-product.dto";
 
 
@@ -25,20 +25,36 @@ export class ProductsService {
         let images: string[] = [];
         let videos: string[] = [];
 
+        // if (files?.images?.length) {
+        //     images = await Promise.all(
+        //         files.images.map(async (file: Express.Multer.File) => {
+        //             const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
+        //             return result.secure_url;
+        //         })
+        //     );
+        // }
+
+        // if (files?.videos?.length) {
+        //     videos = await Promise.all(
+        //         files.videos.map(async (file: Express.Multer.File) => {
+        //             const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
+        //             return result.secure_url;
+        //         })
+        //     );
+        // }
+
         if (files?.images?.length) {
             images = await Promise.all(
-                files.images.map(async (file: Express.Multer.File) => {
-                    const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
-                    return result.secure_url;
+                files.images.map(async (file) => {
+                    return await uploadToS3(file);
                 })
             );
         }
 
         if (files?.videos?.length) {
             videos = await Promise.all(
-                files.videos.map(async (file: Express.Multer.File) => {
-                    const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
-                    return result.secure_url;
+                files.videos.map(async (file) => {
+                    return await uploadToS3(file);
                 })
             );
         }
@@ -99,20 +115,36 @@ export class ProductsService {
             }
         }
 
-        if (files?.images?.length) {
+        // if (files?.images?.length) {
+        //     newImages = await Promise.all(
+        //         files.images.map(async (file: Express.Multer.File) => {
+        //             const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
+        //             return result.secure_url;
+        //         })
+        //     );
+        // }
+
+        // if (files?.videos?.length) {
+        //     newVideos = await Promise.all(
+        //         files.videos.map(async (file: Express.Multer.File) => {
+        //             const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
+        //             return result.secure_url;
+        //         })
+        //     );
+        // }
+
+         if (files?.images?.length) {
             newImages = await Promise.all(
-                files.images.map(async (file: Express.Multer.File) => {
-                    const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
-                    return result.secure_url;
+                files.images.map(async (file) => {
+                    return await uploadToS3(file);
                 })
             );
         }
 
         if (files?.videos?.length) {
             newVideos = await Promise.all(
-                files.videos.map(async (file: Express.Multer.File) => {
-                    const result = await uploadOnCloudinary(file.buffer) as { secure_url: string };
-                    return result.secure_url;
+                files.videos.map(async (file) => {
+                    return await uploadToS3(file);
                 })
             );
         }

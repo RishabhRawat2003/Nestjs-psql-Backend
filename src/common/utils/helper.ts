@@ -1,8 +1,17 @@
 import jwt from 'jsonwebtoken';
 import { v2 as cloudinary } from "cloudinary";
 import dotenv from 'dotenv';
-
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 dotenv.config();
+
+const s3 = new S3Client({
+    region: process.env.AWS_REGION as string,
+    credentials: {
+        accessKeyId: process.env.AWS_ACCESS_KEY as string,
+        secretAccessKey: process.env.AWS_SECRET_KEY as string,
+    },
+});
+
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -11,10 +20,10 @@ cloudinary.config({
 });
 
 export const generateToken = (payload: any) => {
-  const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error('JWT_SECRET is not defined');
-  
-  return jwt.sign(payload, secret);
+    const secret = process.env.JWT_SECRET;
+    if (!secret) throw new Error('JWT_SECRET is not defined');
+
+    return jwt.sign(payload, secret);
 };
 
 export const uploadOnCloudinary = (buffer) => {
@@ -35,10 +44,25 @@ export const uploadOnCloudinary = (buffer) => {
     });
 };
 
-
-
 export const checkIfProductNameExists = async (table: any, name: string) => {
     const exists = await table.findOne({ where: { name } });
 
     return exists
 }
+
+export const uploadToS3 = async (
+    file: Express.Multer.File
+): Promise<string> => {
+    const fileName = `${Date.now()}-${file.originalname}`;
+
+    await s3.send(
+        new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME as string,
+            Key: fileName,
+            Body: file.buffer, // ✅ buffer
+            ContentType: file.mimetype,
+        })
+    );
+
+    return `https://${process.env.AWS_BUCKET_NAME}.s3.us-east-1.amazonaws.com/${fileName}`;
+};

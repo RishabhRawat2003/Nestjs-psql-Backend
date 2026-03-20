@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import bcrypt from 'bcrypt';
-import { generateToken, uploadOnCloudinary } from 'src/common/utils/helper';
+import { generateToken, uploadOnCloudinary, uploadToS3 } from 'src/common/utils/helper';
 
 @Injectable()
 export class UsersService {
@@ -107,12 +107,12 @@ export class UsersService {
 
     let image:any = null
     if (file) {
-      image = await uploadOnCloudinary(file.buffer)
+      image = await uploadToS3(file)
     }
 
     const data = {
       ...updateUserDto,
-      image: image.secure_url
+      image: image
     }
 
     await this.userRepo.update(id, data);
