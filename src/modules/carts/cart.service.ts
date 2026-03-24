@@ -4,6 +4,7 @@ import { Cart } from './entities/cart.entity';
 import { Repository } from 'typeorm';
 import { createCartDto } from './dto/createCart.dto';
 import { ProductItems } from './entities/productItems.entity';
+import { RedisService } from 'src/redis/redis.service';
 
 
 @Injectable()
@@ -14,6 +15,8 @@ export class CartService {
 
         @InjectRepository(ProductItems)
         private readonly productItemsRepo: Repository<ProductItems>,
+
+        private readonly redisService: RedisService
     ) { }
 
     async createOrUpdateCart(userId: number, cartData: createCartDto): Promise<Cart | null> {
@@ -64,6 +67,13 @@ export class CartService {
     }
 
     async getCartByUserId(userId: number): Promise<Cart | null | string> {
+        const cached = await this.redisService.get<Cart>(`cart_${userId}`);
+
+        if (cached) {
+            console.log("From Redis -> Cart");
+            return cached;
+        }
+
         const cart = await this.cartRepo.findOne({
             where: { user: { id: userId } },
             relations: {
@@ -94,6 +104,7 @@ export class CartService {
 
         if (!cart) return "Cart not found";
 
+        await this.redisService.set(`cart_${userId}`, cart, 300);
         return cart;
     }
 
@@ -109,6 +120,8 @@ export class CartService {
             cart: { id: cart.id }
         });
 
+        await this.redisService.del(`cart_${userId}`);
+
         return cart;
     }
 
@@ -123,6 +136,8 @@ export class CartService {
         await this.productItemsRepo.delete({
             id: itemId
         });
+
+        await this.redisService.del(`cart_${userId}`);
 
         return this.cartRepo.findOne({
             where: { id: cart.id },

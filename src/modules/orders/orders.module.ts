@@ -6,10 +6,11 @@ import { OrdersController } from "./orders.controller";
 import { OrderItem } from "./entities/orderItems.entity";
 import { Product } from "../products/entities/product.entity";
 import { SocketModule } from "src/socket/socket.module";
+import { RedisModule } from "src/redis/redis.module";
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([Order, OrderItem, Product]), SocketModule],
+    imports: [TypeOrmModule.forFeature([Order, OrderItem, Product]), SocketModule, RedisModule],
     controllers: [OrdersController],
     providers: [OrdersService],
     exports: [OrdersService]

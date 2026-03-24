@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Order } from "./entities/order.entity";
 import { Repository } from "typeorm";
@@ -6,6 +6,7 @@ import { OrderDto } from "./dto/order.dto";
 import { Product } from "../products/entities/product.entity";
 import { OrderStatus } from "src/common/utils/enum";
 import { ProducerService } from "src/rabbitmq/producer.service";
+import { RedisService } from "src/redis/redis.service";
 
 @Injectable()
 export class OrdersService {
@@ -18,6 +19,7 @@ export class OrdersService {
 
         private readonly rabbitmq: ProducerService,
 
+        private readonly redisService: RedisService
     ) { }
 
     async createOrder(data: OrderDto): Promise<Order> {
@@ -48,10 +50,26 @@ export class OrdersService {
     }
 
     async getSingleOrder(id: number): Promise<Order | null> {
-        return this.orderRepo.findOne({ where: { id }, relations: { items: { product: true }, user: true } });
+        const cached = await this.redisService.get<Order>(`order_${id}`);
+
+        if (cached) {
+            console.log("From Redis -> Orders");
+            return cached;
+        }
+
+        const order = await this.orderRepo.findOne({ where: { id }, relations: { items: { product: true }, user: true } });
+
+        if (!order) {
+            throw new NotFoundException('Order not found');
+        }
+
+        await this.redisService.set(`order_${id}`, order, 300);
+
+        return order;
     }
 
     async deleteOrder(id: number): Promise<void> {
+        await this.redisService.del(`order_${id}`);
         await this.orderRepo.delete(id);
     }
 
@@ -76,6 +94,8 @@ export class OrdersService {
         }
 
         this.rabbitmq.publishToQueue("task_queue", dataToEmit)
+
+        await this.redisService.del(`order_${id}`);
 
         return this.orderRepo.update(id, data);
     }

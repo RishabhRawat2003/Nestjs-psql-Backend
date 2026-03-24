@@ -5,6 +5,7 @@ import { Repository } from "typeorm";
 import { AddProductDto } from "./dto/add-product.dto";
 import { checkIfProductNameExists, uploadOnCloudinary, uploadToS3 } from "src/common/utils/helper";
 import { UpdateProductDto } from "./dto/update-product.dto";
+import { RedisService } from "src/redis/redis.service";
 
 
 @Injectable()
@@ -12,6 +13,9 @@ export class ProductsService {
     constructor(
         @InjectRepository(Product)
         private readonly productRepo: Repository<Product>,
+
+        private readonly redisService: RedisService,
+
     ) { }
 
     async addProduct(data: AddProductDto, files?: { images?: Express.Multer.File[], videos?: Express.Multer.File[] }): Promise<Product> {
@@ -76,12 +80,21 @@ export class ProductsService {
         return this.productRepo.find();
     }
 
-    async getSingleProduct(id: number): Promise<Product | null> {
+    async getSingleProduct(id: number): Promise<Product> {
+        const cached = await this.redisService.get<Product>(`product_${id}`);
+
+        if (cached) {
+            console.log("From Redis -> Products");
+            return cached;
+        }
+
         const product = await this.productRepo.findOne({ where: { id } });
 
         if (!product) {
             throw new NotFoundException('Product not found');
         }
+
+        await this.redisService.set(`product_${id}`, product, 300);
 
         return product;
     }
@@ -133,7 +146,7 @@ export class ProductsService {
         //     );
         // }
 
-         if (files?.images?.length) {
+        if (files?.images?.length) {
             newImages = await Promise.all(
                 files.images.map(async (file) => {
                     return await uploadToS3(file);
@@ -158,6 +171,8 @@ export class ProductsService {
             additionalInfo: JSON.stringify(data.additionalInfo)
         }
 
+        await this.redisService.del(`product_${id}`);
+
         return this.productRepo.update(id, newData);
     }
 
@@ -171,6 +186,7 @@ export class ProductsService {
             throw new NotFoundException('Product not found');
         }
 
+        await this.redisService.del(`product_${id}`);
         await this.productRepo.delete(id);
     }
 
