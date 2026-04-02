@@ -9,15 +9,16 @@ import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { CartModule } from './modules/carts/cart.module';
 import { HealthModule } from './health/health.module';
 
+const envFilePath =
+  process.env.ENV === 'local'
+    ? '.env'
+    : `.env.${process.env.NODE_ENV}`;
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: [
-        `.env.${process.env.NODE_ENV}`,
-        '.env',
-      ],
+      envFilePath,
     }),
     DatabaseModule, // ❗ database
     UsersModule, // ❗ users
