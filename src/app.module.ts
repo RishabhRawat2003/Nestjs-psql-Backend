@@ -8,11 +8,12 @@ import { RedisModule } from './redis/redis.module';
 import { RabbitMQModule } from './rabbitmq/rabbitmq.module';
 import { CartModule } from './modules/carts/cart.module';
 import { HealthModule } from './health/health.module';
+import { getEnvFilePath } from './common/utils/helper';
 
 
 @Module({
   imports: [
-    ConfigModule.forRoot({ isGlobal: true }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: getEnvFilePath(), }),
     DatabaseModule, // ❗ database
     UsersModule, // ❗ users
     ProductsModule, // ❗ products

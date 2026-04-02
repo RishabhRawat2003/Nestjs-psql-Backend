@@ -59,10 +59,21 @@ export const uploadToS3 = async (
         new PutObjectCommand({
             Bucket: process.env.AWS_BUCKET_NAME as string,
             Key: fileName,
-            Body: file.buffer, // ✅ buffer
+            Body: file.buffer,
             ContentType: file.mimetype,
         })
     );
 
     return `https://${process.env.AWS_BUCKET_NAME}.s3.us-east-1.amazonaws.com/${fileName}`;
 };
+
+
+export function getEnvFilePath(): string {
+    const env = process.env.NODE_ENV;
+
+    if (env === 'development') return '.env.development';
+    if (env === 'testing') return '.env.testing';
+    if (env === 'training') return '.env.training';
+
+    return '.env'; // fallback
+}
