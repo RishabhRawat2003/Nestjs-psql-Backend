@@ -66,14 +66,3 @@ export const uploadToS3 = async (
 
     return `https://${process.env.AWS_BUCKET_NAME}.s3.us-east-1.amazonaws.com/${fileName}`;
 };
-
-
-export function getEnvFilePath(): string {
-    const env = process.env.NODE_ENV;
-
-    if (env === 'development') return '.env.development';
-    if (env === 'testing') return '.env.testing';
-    if (env === 'training') return '.env.training';
-
-    return '.env'; // fallback
-}
